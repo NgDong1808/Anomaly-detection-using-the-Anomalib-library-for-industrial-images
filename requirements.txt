@@ -1,0 +1,9 @@
+anomalib>=1.1.0
+torch>=2.0.0
+torchvision>=0.15.0
+lightning>=2.0.0
+fastapi>=0.110.0
+uvicorn>=0.29.0
+pandas>=2.0.0
+Pillow>=10.0.0
+torchmetrics>=1.0.0
