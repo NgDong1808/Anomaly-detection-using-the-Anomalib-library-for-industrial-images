@@ -1,50 +1,50 @@
 # 🔍 Anomaly Detection API
 
-Hệ thống phát hiện bất thường trong ảnh sử dụng **Anomalib**, được đóng gói dưới dạng REST API với **FastAPI**. Hỗ trợ hai model: **PatchCore** và **CFA**.
+An image anomaly detection system built on **Anomalib**, served as a REST API with **FastAPI**. Supports two models: **PatchCore** and **CFA**.
 
 ---
 
-## 📋 Mục lục
+## 📋 Table of Contents
 
-- [Tổng quan](#tổng-quan)
-- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
-- [Cài đặt](#cài-đặt)
-- [Cấu trúc thư mục](#cấu-trúc-thư-mục)
-- [Cấu trúc Dataset](#cấu-trúc-dataset)
-- [Hướng dẫn sử dụng](#hướng-dẫn-sử-dụng)
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Dataset Structure](#dataset-structure)
+- [Usage Guide](#usage-guide)
 - [API Reference](#api-reference)
 - [Models](#models)
+![Result](bottle_contamination_09.png)
+---
+
+## 📌 Overview
+
+This project provides an API to:
+1. **Train** an anomaly detection model on your own dataset
+2. **Run inference** — predict on new images and save overlay result images
+
+Inference output includes the original image overlaid with an **anomaly map** to visually highlight anomalous regions.
 
 ---
 
-## 📌 Tổng quan
-
-Project này cung cấp một API để:
-1. **Train** model phát hiện bất thường trên tập dữ liệu của bạn
-2. **Inference** — dự đoán ảnh mới và lưu ảnh overlay kết quả
-
-Kết quả inference bao gồm ảnh gốc được overlay với **anomaly map** để trực quan hóa vùng bất thường.
-
----
-
-## ⚙️ Yêu cầu hệ thống
+## ⚙️ Requirements
 
 - Python >= 3.9
-- CUDA (khuyến nghị, không bắt buộc)
+- CUDA (recommended, not required)
 - RAM >= 8GB
 
 ---
 
-## 🛠 Cài đặt
+## 🛠 Installation
 
-### 1. Clone repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/<your-username>/<repo-name>.git
 cd <repo-name>
 ```
 
-### 2. Tạo môi trường ảo
+### 2. Create a virtual environment
 
 ```bash
 python -m venv venv
@@ -56,31 +56,31 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-### 3. Cài đặt dependencies
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Chạy server
+### 4. Start the server
 
 ```bash
 python app.py
 ```
 
-Server sẽ chạy tại: `http://127.0.0.1:8002`
+Server runs at: `http://127.0.0.1:8002`
 
-Truy cập Swagger UI tại: `http://127.0.0.1:8002/docs`
+Swagger UI available at: `http://127.0.0.1:8002/docs`
 
 ---
 
-## 📁 Cấu trúc thư mục
+## 📁 Project Structure
 
 ```
 project/
 │
 ├── app.py                  # FastAPI entrypoint
-├── requirements.txt        # Dependencies
+├── requirements.txt        # Python dependencies
 ├── README.md
 │
 ├── src/                    # Source code
@@ -90,176 +90,175 @@ project/
 │   ├── train.py            # Training logic
 │   └── test.py             # Inference logic
 │
-├── data/                   # Dataset (xem cấu trúc bên dưới)
+├── data/                   # Dataset (see structure below)
 │   ├── train/
 │   ├── val/
 │   └── test/
 │
-├── model/                  # Checkpoint được lưu tại đây
-│   └── best.ckpt           # (tự động tạo sau khi train)
+├── model/                  # Model checkpoints saved here
+│   └── best.ckpt           # (auto-generated after training)
 │
-├── overlay_results/        # Ảnh kết quả inference
-└── results/                # Log kết quả test metrics
+├── overlay_results/        # Inference result images
+└── results/                # Test metrics logs
 ```
 
 ---
 
-## 🗂 Cấu trúc Dataset
+## 🗂 Dataset Structure
 
-Dataset **bắt buộc** phải có cấu trúc như sau:
+The dataset **must** follow this directory structure:
 
 ```
 data/
 ├── train/
-│   └── normal/             ← Chỉ chứa ảnh BÌNH THƯỜNG để train
+│   └── normal/             ← Normal images for training ONLY
 │       ├── img001.png
 │       ├── img002.png
 │       └── ...
 │
 ├── val/
-│   ├── normal/             ← Ảnh bình thường để validate
+│   ├── normal/             ← Normal images for validation
 │   │   ├── img001.png
 │   │   └── ...
-│   └── anomaly/            ← Ảnh bất thường để validate
+│   └── anomaly/            ← Anomalous images for validation
 │       ├── img001.png
 │       └── ...
 │
 └── test/
-    ├── normal/             ← Ảnh bình thường để test
+    ├── normal/             ← Normal images for testing
     │   ├── img001.png
     │   └── ...
-    └── anomaly/            ← Ảnh bất thường để test
+    └── anomaly/            ← Anomalous images for testing
         ├── img001.png
         └── ...
 ```
 
-> **Lưu ý quan trọng:**
-> - Thư mục `train/` **chỉ** chứa ảnh bình thường (unsupervised anomaly detection).
-> - Thư mục `val/` và `test/` chứa **cả hai loại**: `normal` và `anomaly`.
-> - Định dạng ảnh hỗ trợ: `.png`, `.jpg`, `.jpeg`, `.bmp`
+> **Important notes:**
+> - The `train/` folder contains **only normal images** (unsupervised anomaly detection).
+> - The `val/` and `test/` folders contain **both** `normal` and `anomaly` subfolders.
+> - Supported image formats: `.png`, `.jpg`, `.jpeg`, `.bmp`
 
 ---
 
-## 🚀 Hướng dẫn sử dụng
+## 🚀 Usage Guide
 
-### Bước 1 — Kiểm tra trạng thái
+### Step 1 — Check server status
 
 ```bash
 GET http://127.0.0.1:8002/status
 ```
 
-Trả về trạng thái server, thiết bị (CPU/GPU), và tình trạng model.
+Returns the server status, available device (CPU/GPU), and whether a model is trained or currently training.
 
 ---
 
-### Bước 2 — Set đường dẫn dataset
+### Step 2 — Set dataset path
 
 ```bash
 POST http://127.0.0.1:8002/set_dataset_path?root=./data
 ```
 
-| Parameter | Type   | Mô tả                              |
+| Parameter | Type   | Description                        |
 |-----------|--------|------------------------------------|
-| `root`    | string | Đường dẫn đến thư mục chứa dataset |
+| `root`    | string | Root path to the dataset directory |
 
 ---
 
-### Bước 3 — Train model
+### Step 3 — Train the model
 
 ```bash
 POST http://127.0.0.1:8002/train
 ```
 
-| Parameter          | Type    | Default      | Mô tả                              |
-|--------------------|---------|--------------|-------------------------------------|
-| `category`         | string  | `my_data`    | Tên category (không ảnh hưởng data load) |
-| `type_model`       | string  | `Patchcore`  | Loại model: `Patchcore` hoặc `Cfa` |
-| `backbone`         | string  | `resnet18`   | Backbone (chỉ dùng cho CFA)         |
-| `lr`               | float   | `0.01`       | Learning rate (chỉ dùng cho CFA)    |
-| `train_batch_size` | int     | `2`          | Batch size khi train                |
-| `eval_batch_size`  | int     | `2`          | Batch size khi eval/test            |
-| `num_workers`      | int     | `2`          | Số worker cho DataLoader            |
-| `w`                | int     | `256`        | Chiều rộng ảnh resize               |
-| `h`                | int     | `256`        | Chiều cao ảnh resize                |
+| Parameter          | Type    | Default      | Description                                  |
+|--------------------|---------|--------------|----------------------------------------------|
+| `category`         | string  | `my_data`    | Category name (does not affect data loading) |
+| `type_model`       | string  | `Patchcore`  | Model type: `Patchcore` or `Cfa`             |
+| `backbone`         | string  | `resnet18`   | Feature backbone (CFA only)                  |
+| `lr`               | float   | `0.01`       | Learning rate (CFA only)                     |
+| `train_batch_size` | int     | `2`          | Batch size during training                   |
+| `eval_batch_size`  | int     | `2`          | Batch size during evaluation/testing         |
+| `num_workers`      | int     | `2`          | Number of DataLoader workers                 |
+| `w`                | int     | `256`        | Image resize width                           |
+| `h`                | int     | `256`        | Image resize height                          |
 
-Sau khi train xong, checkpoint được lưu tại `./model/best.ckpt`.
+After training, the checkpoint is saved to `./model/best.ckpt`.
 
 ---
 
-### Bước 4 — Inference
+### Step 4 — Run inference
 
 ```bash
 POST http://127.0.0.1:8002/inference?testPath=./data/test
 ```
 
-| Parameter  | Type   | Mô tả                                     |
-|------------|--------|-------------------------------------------|
-| `testPath` | string | Đường dẫn đến thư mục ảnh cần dự đoán    |
+| Parameter  | Type   | Description                              |
+|------------|--------|------------------------------------------|
+| `testPath` | string | Path to the folder of images to predict  |
 
-Kết quả ảnh overlay được lưu vào thư mục `./overlay_results/`.
+Overlay result images are saved to `./overlay_results/`.
 
 ---
 
 ## 📡 API Reference
 
-| Method | Endpoint              | Mô tả                          |
-|--------|-----------------------|--------------------------------|
-| GET    | `/status`             | Kiểm tra trạng thái server     |
-| POST   | `/set_dataset_path`   | Cấu hình đường dẫn dataset     |
-| POST   | `/train`              | Huấn luyện model               |
-| POST   | `/inference`          | Dự đoán trên ảnh mới           |
+| Method | Endpoint              | Description                        |
+|--------|-----------------------|------------------------------------|
+| GET    | `/status`             | Check server and model status      |
+| POST   | `/set_dataset_path`   | Set the dataset root path          |
+| POST   | `/train`              | Train the anomaly detection model  |
+| POST   | `/inference`          | Run prediction on new images       |
 
-Swagger UI đầy đủ: `http://127.0.0.1:8002/docs`
+Full Swagger UI: `http://127.0.0.1:8002/docs`
 
 ---
 
 ## 🤖 Models
 
-### PatchCore (Khuyến nghị)
+### PatchCore (Recommended)
 
-- **Nguyên lý:** So sánh patch features của ảnh test với memory bank tích lũy từ ảnh train bình thường.
-- **Ưu điểm:** Không cần fine-tune, train nhanh, kết quả tốt trên nhiều bộ dữ liệu.
-- **Phù hợp:** Khi bạn có ít ảnh train và muốn kết quả nhanh.
+- **How it works:** Compares patch-level features of test images against a memory bank built from normal training images.
+- **Strengths:** No fine-tuning needed, fast training, strong performance across many datasets.
+- **Best for:** Limited training data and when you need quick, reliable results.
 
 ### CFA (Coupled-hypersphere-based Feature Adaptation)
 
-- **Nguyên lý:** Học feature embedding trong không gian hypersphere để phân biệt normal/anomaly.
-- **Ưu điểm:** Linh hoạt hơn, có thể fine-tune learning rate và backbone.
-- **Phù hợp:** Khi muốn kiểm soát quá trình huấn luyện chi tiết hơn.
+- **How it works:** Learns feature embeddings in hypersphere space to separate normal from anomalous samples.
+- **Strengths:** More flexible; allows fine-tuning of learning rate and backbone.
+- **Best for:** When you want finer control over the training process.
 
 ---
 
 ## 📊 Metrics
 
-Sau khi train, hệ thống tự động đánh giá trên tập test với các metrics:
+After training, the system automatically evaluates on the test set with the following image-level metrics:
 
-- **F1 Score** (image-level)
-- **Precision** (image-level)
-- **Recall** (image-level)
+- **F1 Score**
+- **Precision**
+- **Recall**
 
 ---
 
-## 📝 Ví dụ với cURL
+## 📝 cURL Examples
 
 ```bash
-# 1. Kiểm tra status
+# 1. Check status
 curl -X GET http://127.0.0.1:8002/status
 
 # 2. Set dataset path
 curl -X POST "http://127.0.0.1:8002/set_dataset_path?root=./data"
 
-# 3. Train với PatchCore
+# 3. Train with PatchCore
 curl -X POST "http://127.0.0.1:8002/train?type_model=Patchcore&w=256&h=256&train_batch_size=4"
 
-# 4. Inference
+# 4. Run inference
 curl -X POST "http://127.0.0.1:8002/inference?testPath=./data/test"
 ```
 
 ---
 
-## 🔧 Lưu ý
+## 🔧 Notes
 
-- Model checkpoint cũ sẽ bị **ghi đè** mỗi lần train (lưu tại `model/best.ckpt`).
-- Trong khi đang train (`training: true`), không thể thay đổi dataset path.
-- Nếu không có GPU, model sẽ tự động chạy trên CPU (chậm hơn đáng kể với CFA).
-# Anomaly-detection-using-the-Anomalib-library-for-industrial-images
+- The model checkpoint is **overwritten** on each training run (saved to `model/best.ckpt`).
+- While training is in progress (`training: true`), the dataset path cannot be changed.
+- Without a GPU, the model runs on CPU — significantly slower, especially for CFA.
